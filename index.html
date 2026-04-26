@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Save The Date - Aniket & Simran</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #faf9f6;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            margin-top: 2rem;
+        }
+        .header h1 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 5rem;
+            font-weight: 400;
+            color: #4a4a4a;
+            letter-spacing: 2px;
+        }
+        .cards-container {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+            max-width: 1000px;
+        }
+        .card-wrapper {
+            position: relative;
+            width: 250px;
+            height: 350px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            background-color: #fff;
+            user-select: none;
+            touch-action: none; /* Prevents scrolling while scratching on mobile */
+        }
+        .card-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            background-size: cover;
+            background-position: center;
+            padding-bottom: 2rem;
+        }
+        .card-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(50, 30, 20, 0.1) 0%, rgba(20, 10, 5, 0.7) 100%);
+            z-index: 1;
+        }
+        .card-number {
+            position: relative;
+            z-index: 2;
+            font-family: 'Playfair Display', serif;
+            font-size: 6rem;
+            font-weight: 700;
+            color: white;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+            line-height: 1;
+        }
+        canvas.scratch-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            cursor: pointer;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-bottom: 3rem;
+        }
+        .names {
+            font-family: 'Great Vibes', cursive;
+            font-size: 4rem;
+            color: #4a4a4a;
+            margin-bottom: 1rem;
+        }
+        .subtitle {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            letter-spacing: 8px;
+            color: #333;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 3.5rem;
+            }
+            .card-wrapper {
+                width: 200px;
+                height: 280px;
+            }
+            .card-number {
+                font-size: 4.5rem;
+            }
+            .names {
+                font-size: 3rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .card-wrapper {
+                width: 100px;
+                height: 140px;
+            }
+            .card-number {
+                font-size: 2.5rem;
+            }
+            .subtitle {
+                font-size: 0.7rem;
+                letter-spacing: 3px;
+            }
+            .cards-container {
+                gap: 0.5rem;
+                flex-wrap: nowrap;
+            }
+        }
+        .instruction {
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: #888;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Save The Date</h1>
+    </div>
+
+    <div class="instruction">Scratch the cards to reveal</div>
+
+    <div class="cards-container">
+        <!-- Card 1 -->
+        <div class="card-wrapper">
+            <div class="card-content" style="background-image: url('images/image2.jpeg');">
+                <div class="card-number">15</div>
+            </div>
+            <canvas class="scratch-layer" id="scratch1"></canvas>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="card-wrapper">
+            <div class="card-content" style="background-image: url('images/image1.jpeg');">
+                <div class="card-number">02</div>
+            </div>
+            <canvas class="scratch-layer" id="scratch2"></canvas>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="card-wrapper">
+            <div class="card-content" style="background-image: url('images/image3.jpeg');">
+                <div class="card-number">27</div>
+            </div>
+            <canvas class="scratch-layer" id="scratch3"></canvas>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="names">Aniket & Simran</div>
+        <div class="subtitle">Our Wedding</div>
+    </div>
+
+    <script>
+        function setupScratchCard(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            const wrapper = canvas.parentElement;
+            
+            // Set canvas size to match wrapper
+            canvas.width = wrapper.offsetWidth;
+            canvas.height = wrapper.offsetHeight;
+            
+            // Fill with solid color for scratch layer
+            ctx.fillStyle = '#d3c9c1'; // Elegant warm grey/beige
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Add some text or pattern on the scratch layer
+            ctx.font = '20px Montserrat';
+            ctx.fillStyle = '#8a7d74';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            // ctx.fillText('SCRATCH', canvas.width / 2, canvas.height / 2);
+            
+            // Draw a diagonal pattern
+            ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+            ctx.lineWidth = 2;
+            for(let i = -canvas.height; i < canvas.width; i+=20) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i + canvas.height, canvas.height);
+                ctx.stroke();
+            }
+
+            // Variables for drawing
+            let isDrawing = false;
+            let lastX = 0;
+            let lastY = 0;
+            
+            // Scratch properties
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+            ctx.lineWidth = 40;
+            
+            // To make scratch transparent
+            ctx.globalCompositeOperation = 'destination-out';
+
+            function getMousePos(e) {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return {
+                    x: clientX - rect.left,
+                    y: clientY - rect.top
+                };
+            }
+
+            function scratchStart(e) {
+                isDrawing = true;
+                const pos = getMousePos(e);
+                lastX = pos.x;
+                lastY = pos.y;
+                scratch(e); // allow dot scratching
+            }
+
+            function scratchEnd() {
+                isDrawing = false;
+                checkReveal();
+            }
+
+            function scratch(e) {
+                if (!isDrawing) return;
+                e.preventDefault(); // Prevent scrolling on touch
+                
+                const pos = getMousePos(e);
+                
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+                
+                lastX = pos.x;
+                lastY = pos.y;
+            }
+
+            function checkReveal() {
+                // Check if enough area is scratched to reveal completely
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const pixels = imageData.data;
+                let transparentCount = 0;
+                
+                // Only check every 4th pixel (alpha channel) for performance
+                for (let i = 3; i < pixels.length; i += 4) {
+                    if (pixels[i] < 128) {
+                        transparentCount++;
+                    }
+                }
+                
+                const transparentPercentage = (transparentCount / (pixels.length / 4)) * 100;
+                
+                if (transparentPercentage > 20) {
+                    // Reveal completely
+                    canvas.style.transition = 'opacity 0.5s ease';
+                    canvas.style.opacity = '0';
+                    setTimeout(() => {
+                        canvas.style.display = 'none';
+                    }, 500);
+                }
+            }
+
+            // Event listeners for mouse
+            canvas.addEventListener('mousedown', scratchStart);
+            canvas.addEventListener('mousemove', scratch);
+            window.addEventListener('mouseup', scratchEnd);
+
+            // Event listeners for touch
+            canvas.addEventListener('touchstart', scratchStart, {passive: false});
+            canvas.addEventListener('touchmove', scratch, {passive: false});
+            window.addEventListener('touchend', scratchEnd);
+            
+            // Handle resize
+            window.addEventListener('resize', () => {
+                // If it's already completely revealed, ignore
+                if (canvas.style.display === 'none') return;
+                
+                // Store current scratch state if possible, but for simplicity we'll just redraw
+                // Realistically, resize on mobile happens on orientation change
+            });
+        }
+
+        // Initialize all scratch cards
+        window.onload = () => {
+            setupScratchCard('scratch1');
+            setupScratchCard('scratch2');
+            setupScratchCard('scratch3');
+        };
+    </script>
+</body>
+</html>
