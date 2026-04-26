@@ -65,6 +65,7 @@
             background-position: center;
             padding-bottom: 2rem;
             z-index: 1; /* Establishes a stacking context so children stay below canvas */
+            opacity: 0; /* Hidden initially to prevent flash before canvas draws */
         }
         .card-content::before {
             content: '';
@@ -73,7 +74,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(to bottom, rgba(50, 30, 20, 0.1) 0%, rgba(20, 10, 5, 0.7) 100%);
+            background: linear-gradient(to bottom, rgba(20, 30, 20, 0.1) 0%, rgba(20, 10, 5, 0.7) 100%);
             z-index: 2;
         }
         .card-number {
@@ -208,6 +209,12 @@
             // Fill with solid color for scratch layer
             ctx.fillStyle = '#d3c9c1'; // Elegant warm grey/beige
             ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Reveal the content behind the canvas now that the canvas is drawn
+            const content = wrapper.querySelector('.card-content');
+            if (content) {
+                content.style.opacity = '1';
+            }
             
             // Add some text or pattern on the scratch layer
             ctx.font = '20px Montserrat';
